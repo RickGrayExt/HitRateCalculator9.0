@@ -1,0 +1,14 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY src/ ./src/
+COPY data/ ./data/
+RUN dotnet restore src/Calculation.Service/Calculation.Service.csproj
+RUN dotnet publish src/Calculation.Service/Calculation.Service.csproj -c Release -o /app
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=build /app .
+COPY data/ ./data/
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
+EXPOSE 8080
+ENTRYPOINT ["dotnet","Calculation.Service.dll"]
